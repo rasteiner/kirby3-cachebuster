@@ -1,6 +1,9 @@
 <?php
 
-defined('DS') or define('DS', '/');
+use Kirby\Cms\App as Kirby;
+use Kirby\Cms\Url;
+use Kirby\Filesystem\F;
+
 
 Kirby::plugin('schnti/cachebuster', [
 	'options'    => [
@@ -8,26 +11,32 @@ Kirby::plugin('schnti/cachebuster', [
 	],
 	'components' => [
 		'css' => function ($kirby, $url) {
-
+			
 			if ($kirby->option('schnti.cachebuster.active')) {
+				
+			    $relative_url = Url::path($url, false);
+			    $file_root = $kirby->root('index') . "/$relative_url";
 
-				$file = $kirby->roots()->index() . DS . $url;
-				return dirname($url) . '/' . F::name($url) . '.' . F::modified($file) . '.css';
-
-			} else {
-				return $url;
+			    if (F::exists($file_root)) {
+				    return url(dirname($relative_url) . '/' . F::name($relative_url) . '.' . F::modified($file_root) . '.css');
+			    }
 			}
+			
+            return $url;
 		},
 		'js'  => function ($kirby, $url) {
-
+			
 			if ($kirby->option('schnti.cachebuster.active')) {
+				
+			    $relative_url = Url::path($url, false);
+			    $file_root = $kirby->root('index') . "/$relative_url";
 
-				$file = $kirby->roots()->index() . DS . $url;
-				return dirname($url) . '/' . F::name($url) . '.' . F::modified($file) . '.js';
-
-			} else {
-				return $url;
+			    if (F::exists($file_root)) {
+				    return url(dirname($relative_url) . '/' . F::name($relative_url) . '.' . F::modified($file_root) . '.js');
+			    }
 			}
+			
+            return $url;
 		}
 	]
 ]);
